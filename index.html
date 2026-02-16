@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เกมนับผลไม้แสนสนุก</title>
+
+<style>
+body {
+  font-family: 'Comic Sans MS', cursive;
+  text-align: center;
+  background: linear-gradient(to bottom right, #ffccf9, #cce7ff);
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #ff4da6;
+}
+
+.game-box {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.fruits {
+  font-size: 40px;
+  margin: 20px 0;
+}
+
+.buttons button {
+  background-color: #66ccff;
+  border: none;
+  padding: 15px 20px;
+  margin: 10px;
+  border-radius: 15px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.buttons button:hover {
+  background-color: #ff99cc;
+  transform: scale(1.1);
+}
+
+.mode-btn {
+  background-color: #ff99cc;
+  margin-bottom: 15px;
+}
+
+.score {
+  font-size: 18px;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🍓 เกมนับผลไม้ 🍎</h1>
+
+<div class="game-box">
+  <button class="mode-btn" onclick="toggleMode()">โหมด: <span id="modeText">บวก</span></button>
+  
+  <div id="question"></div>
+  <div class="fruits" id="fruitDisplay"></div>
+  <div class="buttons" id="answers"></div>
+  <div class="score">คะแนน: <span id="score">0</span></div>
+</div>
+
+<audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+<audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+<audio id="bgMusic" src="https://assets.mixkit.co/music/preview/mixkit-happy-kids-music-1122.mp3" loop></audio>
+
+<script>
+const fruits = ["🍎","🍌","🍇","🍊","🍓"];
+let score = 0;
+let mode = "add";
+
+const bgMusic = document.getElementById("bgMusic");
+bgMusic.volume = 0.3;
+bgMusic.play();
+
+function toggleMode() {
+  mode = mode === "add" ? "subtract" : "add";
+  document.getElementById("modeText").innerText = mode === "add" ? "บวก" : "ลบ";
+  generateQuestion();
+}
+
+function generateQuestion() {
+  const fruit = fruits[Math.floor(Math.random()*fruits.length)];
+  const num1 = Math.floor(Math.random()*5) + 1;
+  const num2 = Math.floor(Math.random()*5) + 1;
+
+  let correctAnswer;
+  let displayText;
+
+  if(mode === "add") {
+    correctAnswer = num1 + num2;
+    displayText = `${fruit.repeat(num1)} + ${fruit.repeat(num2)}`;
+    document.getElementById("question").innerText = "นับแล้วได้เท่าไหร่?";
+  } else {
+    correctAnswer = Math.max(num1, num2) - Math.min(num1, num2);
+    displayText = `${fruit.repeat(Math.max(num1,num2))} - ${fruit.repeat(Math.min(num1,num2))}`;
+    document.getElementById("question").innerText = "เหลือกี่ลูก?";
+  }
+
+  document.getElementById("fruitDisplay").innerText = displayText;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  let options = new Set();
+  options.add(correctAnswer);
+  while(options.size < 3){
+    options.add(Math.floor(Math.random()*10));
+  }
+
+  options = Array.from(options).sort(() => Math.random()-0.5);
+
+  options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.innerText = option;
+    btn.onclick = () => checkAnswer(option, correctAnswer);
+    answersDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(selected, correct) {
+  if(selected === correct) {
+    score++;
+    document.getElementById("correctSound").play();
+    alert("เก่งมากเลย! 🎉");
+  } else {
+    document.getElementById("wrongSound").play();
+    alert("ลองใหม่นะ 😊");
+  }
+  document.getElementById("score").innerText = score;
+  generateQuestion();
+}
+
+generateQuestion();
+</script>
+
+</body>
+</html>
